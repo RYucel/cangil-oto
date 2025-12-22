@@ -10,11 +10,11 @@ services:
       - "8085:8080"
     environment:
       - AUTHENTICATION_TYPE=apikey
-      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
+      - AUTHENTICATION_API_KEY=B8E47A3C-9F2D-4E81-A5C3-7D6B8E9F0A12
       - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
       - DATABASE_ENABLED=true
       - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=${DATABASE_URL}
+      - DATABASE_CONNECTION_URI=postgres://postgres:7Of7Cx9DO3aRYu53wLT4F6aQi7lDNm6CFRxAQnLPG2HV6OIA8KZWsPb6ge2H5cNN@ug4sswgko8coco4o800k8cow:5432/postgres
       - DATABASE_CONNECTION_CLIENT_NAME=evolution
       - DATABASE_SAVE_DATA_INSTANCE=true
       - DATABASE_SAVE_DATA_NEW_MESSAGE=true
@@ -22,7 +22,7 @@ services:
       - DATABASE_SAVE_DATA_CONTACTS=true
       - DATABASE_SAVE_DATA_CHATS=true
       - CACHE_REDIS_ENABLED=true
-      - CACHE_REDIS_URI=${REDIS_URL}
+      - CACHE_REDIS_URI=redis://default:b5oMFxtNrBhR3HlcsVxXk78g4tDRsmPBxk5uN3NrxgFOqPa8SUntzizDic7jlPNm@l4wkow8kwkcw44ck8wosgcko:6379/0
       - CACHE_REDIS_PREFIX_KEY=evolution
       - CACHE_LOCAL_ENABLED=false
       - QRCODE_LIMIT=30
@@ -47,14 +47,14 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL}
+      - DATABASE_URL=postgres://postgres:7Of7Cx9DO3aRYu53wLT4F6aQi7lDNm6CFRxAQnLPG2HV6OIA8KZWsPb6ge2H5cNN@ug4sswgko8coco4o800k8cow:5432/postgres
+      - REDIS_URL=redis://default:b5oMFxtNrBhR3HlcsVxXk78g4tDRsmPBxk5uN3NrxgFOqPa8SUntzizDic7jlPNm@l4wkow8kwkcw44ck8wosgcko:6379/0
       - EVOLUTION_API_URL=http://evolution-api:8080
-      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
-      - EVOLUTION_INSTANCE_NAME=${EVOLUTION_INSTANCE_NAME}
-      - JWT_SECRET=${JWT_SECRET}
-      - ADMIN_USERNAME=${ADMIN_USERNAME}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - EVOLUTION_API_KEY=B8E47A3C-9F2D-4E81-A5C3-7D6B8E9F0A12
+      - EVOLUTION_INSTANCE_NAME=cangil-whatsapp
+      - JWT_SECRET=x7K9mP2vL4nQ8wR5yT3bU6cF1gH0jS4a
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=CangilAdmin2024!
     depends_on:
       - evolution-api
     networks:
@@ -70,7 +70,7 @@ services:
     ports:
       - "3001:80"
     environment:
-      - VITE_API_URL=${BACKEND_URL:-http://localhost:3000}
+      - VITE_API_URL=https://ug0sks4kggscsgw8o8ckog84.rustuyucel.cloud
     depends_on:
       - backend
     networks:
