@@ -1,85 +1,143 @@
-# Cangil Oto WhatsApp Chatbot
+# 🚗 Cangil Oto - WhatsApp Chatbot & Admin Panel
 
-M. Cangil Auto Trading Ltd. için WhatsApp tabanlı müşteri hizmetleri chatbot sistemi.
+KKTC'de araç satışı yapan Cangil Oto için geliştirilen WhatsApp chatbot sistemi ve yönetim paneli.
 
-## Özellikler
+## 📋 Proje Özeti
 
-- 🚗 **Araç Arama**: Müşteriler marka, model ve tipine göre araç arayabilir
-- 📅 **Randevu Sistemi**: WhatsApp üzerinden otomatik randevu alma
-- 📱 **Admin Panel**: Araç ve randevu yönetimi için modern web arayüzü
-- 🔄 **Gerçek Zamanlı**: Evolution API ile anlık mesajlaşma
+Bu proje, müşterilerin WhatsApp üzerinden araç sorgulama ve randevu alma işlemlerini otomatikleştiren bir chatbot sistemidir. Admin paneli üzerinden araç envanteri ve randevular yönetilebilir.
 
-## Teknolojiler
+## ✅ Tamamlanan Özellikler
 
-- **Backend**: Node.js, Express, Sequelize ORM
-- **Database**: PostgreSQL
-- **Cache**: Redis
-- **WhatsApp**: Evolution API
-- **Frontend**: React, Vite
-- **Deployment**: Docker, Coolify
+### Admin Paneli
+- [x] Kullanıcı girişi (JWT tabanlı)
+- [x] Dashboard (istatistikler görünümü)
+- [x] Araç yönetimi (CRUD işlemleri)
+  - Marka, Model, Yıl, Fiyat
+  - Araç Durumu (Sıfır/2.El)
+  - Kilometre, Renk
+  - Yakıt Türü, Vites Tipi
+  - Motor Hacmi (cc), Motor Gücü (hp)
+  - Kasa Tipi, Direksiyon Tipi (Sol/Sağ)
+  - Konum (KKTC bölgeleri)
+  - İlan Durumu, Öne Çıkan
+- [x] Randevu yönetimi
+- [x] WhatsApp bağlantı ayarları
 
-## Kurulum
+### Backend API
+- [x] RESTful API endpoints
+- [x] PostgreSQL veritabanı entegrasyonu
+- [x] JWT kimlik doğrulama
+- [x] Evolution API entegrasyonu
+- [x] Webhook endpoint (WhatsApp mesajları için)
 
-### 1. Ortam Değişkenlerini Ayarlayın
+### Altyapı
+- [x] Docker Compose yapılandırması
+- [x] Coolify üzerinde deployment
+- [x] PostgreSQL & Redis (Coolify managed)
+- [x] Evolution API entegrasyonu
 
-```bash
-cp .env.example .env
-# .env dosyasını düzenleyin
+## 🔲 Yapılacaklar (TODO)
+
+### WhatsApp Chatbot
+- [ ] WhatsApp bağlantısı (QR kod tarama)
+- [ ] Chatbot mesaj akışları:
+  - [ ] Karşılama mesajı
+  - [ ] Ana menü (Araç Ara, Randevu Al, İletişim)
+  - [ ] Araç sorgulama (marka, model, fiyat aralığı)
+  - [ ] Veritabanından araç arama
+  - [ ] Randevu oluşturma akışı
+- [ ] Webhook işleme (gelen mesajları chatbot'a yönlendirme)
+
+### Chatbot Özellikleri
+- [ ] Doğal dil anlama (basit anahtar kelime eşleştirme)
+- [ ] Araç önerisi algoritması
+- [ ] Fiyat formatlaması (Türkçe)
+- [ ] Resim gönderimi (araç görselleri)
+
+### Ek Özellikler
+- [ ] Araç görseli yükleme
+- [ ] Birden fazla görsel desteği
+- [ ] kktcarabam.com entegrasyonu (opsiyonel)
+- [ ] SMS/E-posta bildirimleri
+
+## 🌐 Canlı URL'ler
+
+| Servis | URL |
+|--------|-----|
+| Admin Panel | https://xowkc88s840ok8scwsoggss0.rustuyucel.cloud |
+| Backend API | https://ug0sks4kggscsgw8o8ckog84.rustuyucel.cloud |
+| Evolution API | https://bg00o0kw8cgscgwkw40w48wk.rustuyucel.cloud |
+
+## 🔑 Giriş Bilgileri
+
+- **Kullanıcı:** `admin`
+- **Şifre:** `CangilAdmin2024!`
+
+## 🛠 Teknoloji Stack
+
+| Katman | Teknoloji |
+|--------|-----------|
+| Frontend | React + Vite |
+| Backend | Node.js + Express |
+| Database | PostgreSQL |
+| Cache | Redis |
+| WhatsApp | Evolution API |
+| Deployment | Coolify (Docker) |
+| VPS | Hostinger |
+
+## 📁 Proje Yapısı
+
+```
+CangilOto/
+├── admin/                 # React Admin Paneli
+│   ├── src/
+│   │   ├── pages/        # Sayfa bileşenleri
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Vehicles.jsx
+│   │   │   ├── Appointments.jsx
+│   │   │   ├── WhatsAppSettings.jsx
+│   │   │   └── Login.jsx
+│   │   ├── App.jsx
+│   │   └── index.css
+│   ├── Dockerfile
+│   └── nginx.conf
+├── backend/               # Node.js API
+│   ├── src/
+│   │   ├── config/       # Database config
+│   │   ├── models/       # Sequelize models
+│   │   ├── routes/       # API routes
+│   │   ├── services/     # Business logic
+│   │   └── index.js
+│   └── Dockerfile
+├── docker-compose.yml     # Container orchestration
+└── README.md
 ```
 
-### 2. Docker ile Çalıştırın
+## 🚀 Deployment Talimatları
 
-```bash
-docker-compose up -d
-```
+1. **Coolify'da proje oluştur**
+2. **GitHub repo'yu bağla**
+3. **PostgreSQL ve Redis ekle** (Coolify Resources)
+4. **docker-compose.yml içindeki database URL'lerini güncelle**
+5. **Deploy et**
 
-### 3. Admin Paneline Giriş
+## 📞 Sonraki Adımlar
 
-`http://localhost:3001` adresine gidin ve `.env` dosyasındaki bilgilerle giriş yapın.
+1. **WhatsApp'ı Bağla:**
+   - Admin Panel → WhatsApp sekmesi
+   - "Bağlantı Başlat" butonuna tıkla
+   - QR kodu telefonla tara
 
-### 4. WhatsApp Bağlantısı
+2. **Test Araçları Ekle:**
+   - Admin Panel → Araçlar sekmesi
+   - "Yeni Araç" butonuyla araç ekle
 
-Admin panelinde "WhatsApp" sekmesine gidin ve QR kodu tarayın.
+3. **Chatbot'u Test Et:**
+   - Bağlanan WhatsApp numarasına mesaj gönder
+   - Chatbot cevabını kontrol et
 
-## Ortam Değişkenleri
+---
 
-| Değişken | Açıklama |
-|----------|----------|
-| `POSTGRES_USER` | PostgreSQL kullanıcı adı |
-| `POSTGRES_PASSWORD` | PostgreSQL şifresi |
-| `POSTGRES_DB` | Veritabanı adı |
-| `EVOLUTION_API_KEY` | Evolution API anahtarı |
-| `EVOLUTION_INSTANCE_NAME` | WhatsApp instance adı |
-| `JWT_SECRET` | JWT token şifresi |
-| `ADMIN_USERNAME` | Admin kullanıcı adı |
-| `ADMIN_PASSWORD` | Admin şifresi |
-
-## Coolify Deployment
-
-1. GitHub'a push edin
-2. Coolify'da yeni "Docker Compose" projesi oluşturun
-3. Bu repo'yu bağlayın
-4. Environment değişkenlerini ekleyin
-5. Deploy edin
-
-## API Endpoints
-
-### Araçlar
-- `GET /api/vehicles` - Araç listesi
-- `POST /api/vehicles` - Yeni araç
-- `PUT /api/vehicles/:id` - Araç güncelle
-- `DELETE /api/vehicles/:id` - Araç sil
-
-### Randevular
-- `GET /api/appointments` - Randevu listesi
-- `POST /api/appointments` - Yeni randevu
-- `PATCH /api/appointments/:id/status` - Durum güncelle
-
-### WhatsApp
-- `GET /api/evolution/status` - Bağlantı durumu
-- `GET /api/evolution/qrcode` - QR kod
-- `POST /api/evolution/init` - Instance oluştur
-
-## Lisans
-
-© 2024 M. Cangil Auto Trading Ltd.
+**Geliştirici:** Cangil Oto IT Team  
+**Versiyon:** 1.0.0  
+**Son Güncelleme:** Aralık 2025
