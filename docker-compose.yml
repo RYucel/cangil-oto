@@ -14,7 +14,7 @@ services:
       - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
       - DATABASE_ENABLED=true
       - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DATABASE_CONNECTION_URI=${DATABASE_URL}
       - DATABASE_CONNECTION_CLIENT_NAME=evolution
       - DATABASE_SAVE_DATA_INSTANCE=true
       - DATABASE_SAVE_DATA_NEW_MESSAGE=true
@@ -22,7 +22,7 @@ services:
       - DATABASE_SAVE_DATA_CONTACTS=true
       - DATABASE_SAVE_DATA_CHATS=true
       - CACHE_REDIS_ENABLED=true
-      - CACHE_REDIS_URI=redis://redis:6379
+      - CACHE_REDIS_URI=${REDIS_URL}
       - CACHE_REDIS_PREFIX_KEY=evolution
       - CACHE_LOCAL_ENABLED=false
       - QRCODE_LIMIT=30
@@ -32,33 +32,6 @@ services:
       - LOG_LEVEL=ERROR
     volumes:
       - evolution_instances:/evolution/instances
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - cangil-network
-
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15-alpine
-    container_name: cangil-postgres
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - cangil-network
-
-  # Redis Cache
-  redis:
-    image: redis:7-alpine
-    container_name: cangil-redis
-    restart: unless-stopped
-    volumes:
-      - redis_data:/data
     networks:
       - cangil-network
 
@@ -74,8 +47,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
       - EVOLUTION_API_URL=http://evolution-api:8080
       - EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
       - EVOLUTION_INSTANCE_NAME=${EVOLUTION_INSTANCE_NAME}
@@ -83,8 +56,6 @@ services:
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     depends_on:
-      - postgres
-      - redis
       - evolution-api
     networks:
       - cangil-network
@@ -107,8 +78,6 @@ services:
 
 volumes:
   evolution_instances:
-  postgres_data:
-  redis_data:
 
 
 networks:
