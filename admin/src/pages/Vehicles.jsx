@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, X } from 'lucide-react';
 import { useAuth } from '../App';
 
+const CONDITIONS = [
+    { value: 'sifir', label: 'Sıfır' },
+    { value: '2el', label: '2.El' }
+];
+
 const BODY_TYPES = [
     { value: 'sedan', label: 'Sedan' },
     { value: 'hatchback', label: 'Hatchback' },
@@ -11,9 +16,10 @@ const BODY_TYPES = [
     { value: 'coupe', label: 'Coupe' },
     { value: 'cabrio', label: 'Cabrio' },
     { value: 'panelvan', label: 'Panelvan' },
-    { value: 'motosiklet', label: 'Motosiklet' },
-    { value: 'karavan', label: 'Karavan' },
-    { value: 'atv', label: 'ATV' }
+    { value: 'station_wagon', label: 'Station Wagon' },
+    { value: 'crossover', label: 'Crossover' },
+    { value: 'mpv', label: 'MPV' },
+    { value: 'roadster', label: 'Roadster' }
 ];
 
 const FUEL_TYPES = [
@@ -26,7 +32,13 @@ const FUEL_TYPES = [
 
 const TRANSMISSIONS = [
     { value: 'manuel', label: 'Manuel' },
-    { value: 'otomatik', label: 'Otomatik' }
+    { value: 'otomatik', label: 'Otomatik' },
+    { value: 'yari_otomatik', label: 'Yarı Otomatik' }
+];
+
+const STEERING_TYPES = [
+    { value: 'sol', label: 'Sol Direksiyon' },
+    { value: 'sag', label: 'Sağ Direksiyon' }
 ];
 
 const STATUSES = [
@@ -36,16 +48,33 @@ const STATUSES = [
     { value: 'inactive', label: 'Pasif' }
 ];
 
+const LOCATIONS = [
+    'Lefkoşa',
+    'Girne',
+    'Girne / Alsancak',
+    'Girne / Lapta',
+    'Girne / Karaoğlanoğlu',
+    'Gazimağusa',
+    'Güzelyurt',
+    'İskele',
+    'Lefke'
+];
+
 const emptyVehicle = {
     brand: '',
     model: '',
     year: new Date().getFullYear(),
     price: '',
+    condition: '2el',
     mileage: '',
     color: '',
     fuelType: 'benzin',
     transmission: 'otomatik',
+    engineCapacity: '',
+    enginePower: '',
     bodyType: 'sedan',
+    steeringType: 'sol',
+    location: '',
     description: '',
     status: 'active',
     featured: false
@@ -72,7 +101,7 @@ export default function Vehicles() {
             const params = new URLSearchParams({
                 page,
                 limit: 10,
-                status: '' // Get all statuses
+                status: ''
             });
             if (searchQuery) params.append('search', searchQuery);
 
@@ -105,7 +134,9 @@ export default function Vehicles() {
                 body: JSON.stringify({
                     ...formData,
                     price: formData.price ? parseFloat(formData.price) : null,
-                    mileage: formData.mileage ? parseInt(formData.mileage) : null
+                    mileage: formData.mileage ? parseInt(formData.mileage) : null,
+                    engineCapacity: formData.engineCapacity ? parseInt(formData.engineCapacity) : null,
+                    enginePower: formData.enginePower ? parseInt(formData.enginePower) : null
                 })
             });
 
@@ -127,11 +158,16 @@ export default function Vehicles() {
             model: vehicle.model,
             year: vehicle.year,
             price: vehicle.price || '',
+            condition: vehicle.condition || '2el',
             mileage: vehicle.mileage || '',
             color: vehicle.color || '',
             fuelType: vehicle.fuelType || 'benzin',
             transmission: vehicle.transmission || 'otomatik',
+            engineCapacity: vehicle.engineCapacity || '',
+            enginePower: vehicle.enginePower || '',
             bodyType: vehicle.bodyType || 'sedan',
+            steeringType: vehicle.steeringType || 'sol',
+            location: vehicle.location || '',
             description: vehicle.description || '',
             status: vehicle.status,
             featured: vehicle.featured || false
@@ -162,6 +198,10 @@ export default function Vehicles() {
         };
         const labels = STATUSES.find(s => s.value === status)?.label || status;
         return <span className={`badge ${badges[status]}`}>{labels}</span>;
+    };
+
+    const getConditionLabel = (condition) => {
+        return CONDITIONS.find(c => c.value === condition)?.label || condition;
     };
 
     return (
@@ -210,6 +250,7 @@ export default function Vehicles() {
                                     <th>Yıl</th>
                                     <th>Fiyat</th>
                                     <th>KM</th>
+                                    <th>Konum</th>
                                     <th>Durum</th>
                                     <th>İşlemler</th>
                                 </tr>
@@ -220,12 +261,13 @@ export default function Vehicles() {
                                         <td>
                                             <strong>{vehicle.brand} {vehicle.model}</strong>
                                             <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                                                {vehicle.color} • {vehicle.transmission === 'otomatik' ? 'Otomatik' : 'Manuel'}
+                                                {getConditionLabel(vehicle.condition)} • {vehicle.color} • {vehicle.transmission === 'otomatik' ? 'Otomatik' : 'Manuel'}
                                             </div>
                                         </td>
                                         <td>{vehicle.year}</td>
-                                        <td>{vehicle.price ? `${vehicle.price.toLocaleString()} ₺` : '-'}</td>
+                                        <td>{vehicle.price ? `${Number(vehicle.price).toLocaleString()} ₺` : 'Sorunuz'}</td>
                                         <td>{vehicle.mileage ? `${vehicle.mileage.toLocaleString()} km` : '-'}</td>
+                                        <td>{vehicle.location || '-'}</td>
                                         <td>{getStatusBadge(vehicle.status)}</td>
                                         <td>
                                             <div className="actions">
@@ -270,7 +312,7 @@ export default function Vehicles() {
             {/* Vehicle Modal */}
             {showModal && (
                 <div className="modal-backdrop" onClick={() => setShowModal(false)}>
-                    <div className="modal" onClick={e => e.stopPropagation()}>
+                    <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '700px' }}>
                         <div className="modal-header">
                             <h2 className="modal-title">
                                 {editingVehicle ? 'Araç Düzenle' : 'Yeni Araç Ekle'}
@@ -280,7 +322,12 @@ export default function Vehicles() {
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleSubmit} style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: '0.5rem' }}>
+                            {/* Temel Bilgiler */}
+                            <h3 style={{ fontSize: '1rem', color: 'var(--primary)', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
+                                Temel Bilgiler
+                            </h3>
+
                             <div className="form-row">
                                 <div className="form-group">
                                     <label className="form-label">Marka *</label>
@@ -289,6 +336,7 @@ export default function Vehicles() {
                                         className="form-input"
                                         value={formData.brand}
                                         onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                                        placeholder="örn: Honda"
                                         required
                                     />
                                 </div>
@@ -299,6 +347,7 @@ export default function Vehicles() {
                                         className="form-input"
                                         value={formData.model}
                                         onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                                        placeholder="örn: Jazz"
                                         required
                                     />
                                 </div>
@@ -324,11 +373,24 @@ export default function Vehicles() {
                                         className="form-input"
                                         value={formData.price}
                                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                        placeholder="Boş bırakırsanız 'Fiyat Sorunuz' görünür"
                                     />
                                 </div>
                             </div>
 
                             <div className="form-row">
+                                <div className="form-group">
+                                    <label className="form-label">Araç Durumu</label>
+                                    <select
+                                        className="form-select"
+                                        value={formData.condition}
+                                        onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
+                                    >
+                                        {CONDITIONS.map(c => (
+                                            <option key={c.value} value={c.value}>{c.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
                                 <div className="form-group">
                                     <label className="form-label">Kilometre</label>
                                     <input
@@ -336,22 +398,19 @@ export default function Vehicles() {
                                         className="form-input"
                                         value={formData.mileage}
                                         onChange={(e) => setFormData({ ...formData, mileage: e.target.value })}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Renk</label>
-                                    <input
-                                        type="text"
-                                        className="form-input"
-                                        value={formData.color}
-                                        onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                                        placeholder="örn: 217919"
                                     />
                                 </div>
                             </div>
 
+                            {/* Motor ve Performans */}
+                            <h3 style={{ fontSize: '1rem', color: 'var(--primary)', marginTop: '1.5rem', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
+                                Motor ve Performans
+                            </h3>
+
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label className="form-label">Yakıt Tipi</label>
+                                    <label className="form-label">Yakıt Türü</label>
                                     <select
                                         className="form-select"
                                         value={formData.fuelType}
@@ -363,7 +422,7 @@ export default function Vehicles() {
                                     </select>
                                 </div>
                                 <div className="form-group">
-                                    <label className="form-label">Vites</label>
+                                    <label className="form-label">Vites Tipi</label>
                                     <select
                                         className="form-select"
                                         value={formData.transmission}
@@ -375,6 +434,34 @@ export default function Vehicles() {
                                     </select>
                                 </div>
                             </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label className="form-label">Motor Hacmi (cc)</label>
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        value={formData.engineCapacity}
+                                        onChange={(e) => setFormData({ ...formData, engineCapacity: e.target.value })}
+                                        placeholder="örn: 1340"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Motor Gücü (hp)</label>
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        value={formData.enginePower}
+                                        onChange={(e) => setFormData({ ...formData, enginePower: e.target.value })}
+                                        placeholder="örn: 100"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Kasa ve Görünüm */}
+                            <h3 style={{ fontSize: '1rem', color: 'var(--primary)', marginTop: '1.5rem', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
+                                Kasa ve Görünüm
+                            </h3>
 
                             <div className="form-row">
                                 <div className="form-group">
@@ -390,7 +477,53 @@ export default function Vehicles() {
                                     </select>
                                 </div>
                                 <div className="form-group">
-                                    <label className="form-label">Durum</label>
+                                    <label className="form-label">Renk</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        value={formData.color}
+                                        onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                                        placeholder="örn: Gümüş"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label className="form-label">Direksiyon Tipi</label>
+                                    <select
+                                        className="form-select"
+                                        value={formData.steeringType}
+                                        onChange={(e) => setFormData({ ...formData, steeringType: e.target.value })}
+                                    >
+                                        {STEERING_TYPES.map(t => (
+                                            <option key={t.value} value={t.value}>{t.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Konum</label>
+                                    <select
+                                        className="form-select"
+                                        value={formData.location}
+                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                    >
+                                        <option value="">Seçiniz</option>
+                                        {LOCATIONS.map(loc => (
+                                            <option key={loc} value={loc}>{loc}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* İlan Ayarları */}
+                            <h3 style={{ fontSize: '1rem', color: 'var(--primary)', marginTop: '1.5rem', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
+                                İlan Ayarları
+                            </h3>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label className="form-label">İlan Durumu</label>
                                     <select
                                         className="form-select"
                                         value={formData.status}
@@ -401,6 +534,17 @@ export default function Vehicles() {
                                         ))}
                                     </select>
                                 </div>
+                                <div className="form-group" style={{ display: 'flex', alignItems: 'center', paddingTop: '1.5rem' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.featured}
+                                            onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                                            style={{ width: '1.25rem', height: '1.25rem' }}
+                                        />
+                                        <span>Öne Çıkan İlan</span>
+                                    </label>
+                                </div>
                             </div>
 
                             <div className="form-group">
@@ -410,10 +554,11 @@ export default function Vehicles() {
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     rows={3}
+                                    placeholder="Araç hakkında ek bilgiler..."
                                 />
                             </div>
 
-                            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
                                     İptal
                                 </button>
