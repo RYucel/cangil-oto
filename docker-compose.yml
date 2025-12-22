@@ -51,11 +51,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - cangil-network
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   # Redis Cache
   redis:
@@ -66,11 +61,6 @@ services:
       - redis_data:/data
     networks:
       - cangil-network
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   # Node.js Backend API
   backend:
@@ -93,12 +83,9 @@ services:
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      evolution-api:
-        condition: service_started
+      - postgres
+      - redis
+      - evolution-api
     networks:
       - cangil-network
 
