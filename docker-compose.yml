@@ -49,12 +49,13 @@ services:
       - PORT=3000
       - DATABASE_URL=postgres://postgres:7Of7Cx9DO3aRYu53wLT4F6aQi7lDNm6CFRxAQnLPG2HV6OIA8KZWsPb6ge2H5cNN@ug4sswgko8coco4o800k8cow:5432/postgres
       - REDIS_URL=redis://default:b5oMFxtNrBhR3HlcsVxXk78g4tDRsmPBxk5uN3NrxgFOqPa8SUntzizDic7jlPNm@l4wkow8kwkcw44ck8wosgcko:6379/0
-      - EVOLUTION_API_URL=http://cangil-evolution:8080
+      - EVOLUTION_API_URL=https://bg00o0kw8cgscgwkw40w48wk.rustuyucel.cloud
       - EVOLUTION_API_KEY=B8E47A3C-9F2D-4E81-A5C3-7D6B8E9F0A12
       - EVOLUTION_INSTANCE_NAME=cangil-whatsapp
       - JWT_SECRET=x7K9mP2vL4nQ8wR5yT3bU6cF1gH0jS4a
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=CangilAdmin2024!
+      - BACKEND_URL=https://ug0sks4kggscsgw8o8ckog84.rustuyucel.cloud
     networks:
       - coolify
 
