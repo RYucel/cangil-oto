@@ -275,6 +275,53 @@ async function logout() {
     }
 }
 
+/**
+ * Delete instance completely
+ */
+async function deleteInstance() {
+    try {
+        logger.info(`Deleting instance: ${INSTANCE_NAME}`);
+        const response = await evolutionApi.delete(`/instance/delete/${INSTANCE_NAME}`);
+        logger.info('Instance deleted successfully');
+        return response.data;
+    } catch (error) {
+        logger.error('Failed to delete instance:', {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data
+        });
+        // If 404, instance doesn't exist which is fine
+        if (error.response?.status === 404) {
+            return { deleted: true, wasNotFound: true };
+        }
+        throw error;
+    }
+}
+
+/**
+ * Restart instance (delete and recreate)
+ */
+async function restartInstance(webhookUrl) {
+    try {
+        logger.info('Restarting instance...');
+
+        // First try to delete
+        try {
+            await deleteInstance();
+            // Wait a bit for cleanup
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        } catch (e) {
+            logger.warn('Delete failed, proceeding anyway:', e.message);
+        }
+
+        // Now create fresh
+        return await createInstance(webhookUrl);
+    } catch (error) {
+        logger.error('Failed to restart instance:', error.message);
+        throw error;
+    }
+}
+
 module.exports = {
     sendMessage,
     sendButtonMessage,
@@ -284,5 +331,7 @@ module.exports = {
     getQRCode,
     createInstance,
     setWebhook,
-    logout
+    logout,
+    deleteInstance,
+    restartInstance
 };

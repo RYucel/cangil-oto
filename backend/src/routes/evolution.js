@@ -51,6 +51,22 @@ router.post('/init', async (req, res) => {
 });
 
 /**
+ * Restart instance (delete and recreate)
+ */
+router.post('/restart', async (req, res) => {
+    try {
+        const { webhookUrl } = req.body;
+        const backendUrl = webhookUrl || `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/webhook`;
+
+        const result = await evolutionService.restartInstance(backendUrl);
+        res.json(result);
+    } catch (error) {
+        logger.error('Error restarting instance:', error.message);
+        res.status(500).json({ error: 'Failed to restart instance' });
+    }
+});
+
+/**
  * Update webhook URL
  */
 router.post('/webhook', async (req, res) => {
