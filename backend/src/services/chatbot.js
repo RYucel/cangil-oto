@@ -323,8 +323,8 @@ async function showVehicleResults(phone, brand, bodyType, customer) {
         if (v.transmission) message += ` | ${v.transmission === 'otomatik' ? 'Otomatik' : 'Manuel'}`;
         if (v.mileage) message += ` | ${v.mileage.toLocaleString()} km`;
         message += `\n`;
-        if (v.price) {
-            message += `   💰 ${v.price.toLocaleString()} ₺\n`;
+        if (v.priceGBP) {
+            message += `   💰 £${v.priceGBP.toLocaleString()}\n`;
         } else {
             message += `   💰 Fiyat için arayınız\n`;
         }
@@ -370,8 +370,8 @@ async function handleVehicleResults(phone, text, customer) {
     if (vehicle.transmission) message += `⚙️ Vites: ${vehicle.transmission === 'otomatik' ? 'Otomatik' : 'Manuel'}\n`;
     if (vehicle.fuelType) message += `⛽ Yakıt: ${vehicle.fuelType.charAt(0).toUpperCase() + vehicle.fuelType.slice(1)}\n`;
     if (vehicle.mileage) message += `📊 Kilometre: ${vehicle.mileage.toLocaleString()} km\n`;
-    if (vehicle.price) {
-        message += `💰 Fiyat: ${vehicle.price.toLocaleString()} ₺\n`;
+    if (vehicle.priceGBP) {
+        message += `💰 Fiyat: £${vehicle.priceGBP.toLocaleString()}\n`;
     } else {
         message += `💰 Fiyat: Görüşmek için arayınız\n`;
     }
