@@ -23,9 +23,20 @@ router.get('/status', async (req, res) => {
 
 /**
  * Get QR code for connection
+ * First checks webhook cache, then falls back to API call
  */
 router.get('/qrcode', async (req, res) => {
     try {
+        // First check if we have a cached QR code from webhook
+        const webhookRouter = require('./webhook');
+        const cachedQR = webhookRouter.getCachedQRCode();
+
+        if (cachedQR.base64) {
+            logger.info('Returning cached QR code from webhook');
+            return res.json(cachedQR);
+        }
+
+        // Fall back to Evolution API call
         const qrData = await evolutionService.getQRCode();
         res.json(qrData);
     } catch (error) {

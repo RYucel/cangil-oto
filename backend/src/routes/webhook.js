@@ -4,6 +4,10 @@ const logger = require('../config/logger');
 
 const router = express.Router();
 
+// In-memory cache for QR code (simple solution, could use Redis in production)
+let cachedQRCode = null;
+let qrCodeTimestamp = null;
+
 /**
  * Evolution API Webhook Handler
  * Receives events from Evolution API
@@ -13,6 +17,7 @@ router.post('/', async (req, res) => {
         const { event, data, instance } = req.body;
 
         logger.info(`Webhook received: ${event} from ${instance}`);
+        logger.info('Webhook data:', JSON.stringify(data).substring(0, 500));
 
         switch (event) {
             case 'messages.upsert':
@@ -27,7 +32,7 @@ router.post('/', async (req, res) => {
 
             case 'qrcode.updated':
             case 'QRCODE_UPDATED':
-                logger.info('QR Code updated');
+                await handleQRCodeEvent(data);
                 break;
 
             default:
@@ -40,6 +45,60 @@ router.post('/', async (req, res) => {
         res.status(500).json({ error: 'Webhook processing failed' });
     }
 });
+
+/**
+ * Handle QR code update events
+ */
+async function handleQRCodeEvent(data) {
+    try {
+        logger.info('QR Code update received!');
+        logger.info('QR data keys:', Object.keys(data || {}));
+
+        // Extract QR code from various possible locations in Evolution API v2 response
+        let qrBase64 = null;
+
+        if (data.qrcode) {
+            qrBase64 = data.qrcode.base64 || data.qrcode;
+        } else if (data.base64) {
+            qrBase64 = data.base64;
+        } else if (data.qr) {
+            qrBase64 = data.qr.base64 || data.qr;
+        } else if (typeof data === 'string') {
+            qrBase64 = data;
+        }
+
+        if (qrBase64) {
+            // Remove data:image prefix if present
+            const cleanBase64 = qrBase64.replace(/^data:image\/[a-z]+;base64,/, '');
+            cachedQRCode = cleanBase64;
+            qrCodeTimestamp = Date.now();
+            logger.info('QR Code cached successfully! Length:', cleanBase64.length);
+        } else {
+            logger.warn('No QR code found in webhook data:', JSON.stringify(data));
+        }
+    } catch (error) {
+        logger.error('Error handling QR code event:', error);
+    }
+}
+
+/**
+ * Get cached QR code (called by evolution routes)
+ */
+function getCachedQRCode() {
+    // QR codes expire after 60 seconds
+    if (cachedQRCode && qrCodeTimestamp && (Date.now() - qrCodeTimestamp < 60000)) {
+        return { base64: cachedQRCode };
+    }
+    return { count: 0 };
+}
+
+/**
+ * Clear cached QR code
+ */
+function clearCachedQRCode() {
+    cachedQRCode = null;
+    qrCodeTimestamp = null;
+}
 
 /**
  * Handle incoming message events
@@ -105,7 +164,15 @@ async function handleConnectionEvent(data) {
     const state = data.state || data.status;
     logger.info(`Connection state: ${state}`);
 
-    // Could emit events or update status in database here
+    // Clear QR code when connected
+    if (state === 'open') {
+        clearCachedQRCode();
+        logger.info('Connection established! QR code cache cleared.');
+    }
 }
+
+// Export the router and helper functions
+router.getCachedQRCode = getCachedQRCode;
+router.clearCachedQRCode = clearCachedQRCode;
 
 module.exports = router;
