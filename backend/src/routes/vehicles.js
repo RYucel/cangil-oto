@@ -38,9 +38,9 @@ router.get('/', async (req, res) => {
         }
 
         if (minPrice || maxPrice) {
-            where.price = {};
-            if (minPrice) where.price[Op.gte] = parseFloat(minPrice);
-            if (maxPrice) where.price[Op.lte] = parseFloat(maxPrice);
+            where.priceGBP = {};
+            if (minPrice) where.priceGBP[Op.gte] = parseFloat(minPrice);
+            if (maxPrice) where.priceGBP[Op.lte] = parseFloat(maxPrice);
         }
 
         if (search) {
@@ -168,7 +168,7 @@ router.post('/seed', authenticateToken, async (req, res) => {
                 brand: "BMW",
                 model: "1 Serisi 120i",
                 year: 2011,
-                price: 9500,
+                priceGBP: 9500,
                 mileage: 159207,
                 color: "Beyaz",
                 fuelType: "benzin",
@@ -253,7 +253,7 @@ router.post('/seed', authenticateToken, async (req, res) => {
                 brand: "Maserati",
                 model: "Levante 3.0 V6",
                 year: 2017,
-                price: 41000,
+                priceGBP: 41000,
                 mileage: 46473,
                 color: "Mavi-Parlement",
                 fuelType: "benzin",

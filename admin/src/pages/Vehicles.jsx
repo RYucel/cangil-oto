@@ -64,7 +64,7 @@ const emptyVehicle = {
     brand: '',
     model: '',
     year: new Date().getFullYear(),
-    price: '',
+    priceGBP: '',
     condition: '2el',
     mileage: '',
     color: '',
@@ -133,7 +133,7 @@ export default function Vehicles() {
                 },
                 body: JSON.stringify({
                     ...formData,
-                    price: formData.price ? parseFloat(formData.price) : null,
+                    priceGBP: formData.priceGBP ? parseFloat(formData.priceGBP) : null,
                     mileage: formData.mileage ? parseInt(formData.mileage) : null,
                     engineCapacity: formData.engineCapacity ? parseInt(formData.engineCapacity) : null,
                     enginePower: formData.enginePower ? parseInt(formData.enginePower) : null
@@ -157,7 +157,7 @@ export default function Vehicles() {
             brand: vehicle.brand,
             model: vehicle.model,
             year: vehicle.year,
-            price: vehicle.price || '',
+            priceGBP: vehicle.priceGBP || '',
             condition: vehicle.condition || '2el',
             mileage: vehicle.mileage || '',
             color: vehicle.color || '',
@@ -265,7 +265,7 @@ export default function Vehicles() {
                                             </div>
                                         </td>
                                         <td>{vehicle.year}</td>
-                                        <td>{vehicle.price ? `${Number(vehicle.price).toLocaleString()} ₺` : 'Sorunuz'}</td>
+                                        <td>{vehicle.priceGBP ? `£${Number(vehicle.priceGBP).toLocaleString()}` : 'Sorunuz'}</td>
                                         <td>{vehicle.mileage ? `${vehicle.mileage.toLocaleString()} km` : '-'}</td>
                                         <td>{vehicle.location || '-'}</td>
                                         <td>{getStatusBadge(vehicle.status)}</td>
@@ -367,12 +367,12 @@ export default function Vehicles() {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label className="form-label">Fiyat (₺)</label>
+                                    <label className="form-label">Fiyat (£ GBP)</label>
                                     <input
                                         type="number"
                                         className="form-input"
-                                        value={formData.price}
-                                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                        value={formData.priceGBP}
+                                        onChange={(e) => setFormData({ ...formData, priceGBP: e.target.value })}
                                         placeholder="Boş bırakırsanız 'Fiyat Sorunuz' görünür"
                                     />
                                 </div>

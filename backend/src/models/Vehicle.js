@@ -19,9 +19,12 @@ const Vehicle = sequelize.define('Vehicle', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    price: {
+    // Price in British Pound Sterling (GBP) - Standard currency for KKTC car sales
+    // null means "Call for price" (Fiyat Sorunuz)
+    priceGBP: {
         type: DataTypes.DECIMAL(12, 2),
-        allowNull: true
+        allowNull: true,
+        field: 'price_gbp'
     },
     condition: {
         type: DataTypes.ENUM('sifir', '2el'),
@@ -99,7 +102,8 @@ const Vehicle = sequelize.define('Vehicle', {
         { fields: ['year'] },
         { fields: ['body_type'] },
         { fields: ['condition'] },
-        { fields: ['location'] }
+        { fields: ['location'] },
+        { fields: ['price_gbp'] }
     ]
 });
 
