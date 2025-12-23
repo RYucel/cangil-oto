@@ -5,8 +5,12 @@ const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL || 'http://evolution-api
 const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY;
 const INSTANCE_NAME = process.env.EVOLUTION_INSTANCE_NAME || 'cangil-whatsapp';
 
+// Log configuration on startup
+logger.info(`Evolution API Config: URL=${EVOLUTION_API_URL}, KEY=${EVOLUTION_API_KEY ? 'SET' : 'NOT SET'}, INSTANCE=${INSTANCE_NAME}`);
+
 const evolutionApi = axios.create({
     baseURL: EVOLUTION_API_URL,
+    timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
         'apikey': EVOLUTION_API_KEY
@@ -98,10 +102,17 @@ async function sendImage(to, imageUrl, caption) {
  */
 async function getConnectionStatus() {
     try {
+        logger.info(`Checking connection status for instance: ${INSTANCE_NAME}`);
         const response = await evolutionApi.get(`/instance/connectionState/${INSTANCE_NAME}`);
+        logger.info('Connection status response:', JSON.stringify(response.data));
         return response.data;
     } catch (error) {
-        logger.error('Failed to get connection status:', error.message);
+        logger.error('Failed to get connection status:', {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data,
+            url: `${EVOLUTION_API_URL}/instance/connectionState/${INSTANCE_NAME}`
+        });
         throw error;
     }
 }
@@ -111,10 +122,16 @@ async function getConnectionStatus() {
  */
 async function getQRCode() {
     try {
+        logger.info(`Getting QR code for instance: ${INSTANCE_NAME}`);
         const response = await evolutionApi.get(`/instance/connect/${INSTANCE_NAME}`);
+        logger.info('QR code response received');
         return response.data;
     } catch (error) {
-        logger.error('Failed to get QR code:', error.message);
+        logger.error('Failed to get QR code:', {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data
+        });
         throw error;
     }
 }
@@ -124,27 +141,51 @@ async function getQRCode() {
  */
 async function createInstance(webhookUrl) {
     try {
-        const response = await evolutionApi.post('/instance/create', {
+        logger.info(`Creating instance: ${INSTANCE_NAME}, webhook: ${webhookUrl}`);
+        logger.info(`Using Evolution API URL: ${EVOLUTION_API_URL}`);
+
+        const requestBody = {
             instanceName: INSTANCE_NAME,
             qrcode: true,
             integration: 'WHATSAPP-BAILEYS',
-            webhook: webhookUrl,
-            webhookByEvents: false,
-            webhookBase64: false,
-            webhookEvents: [
-                'MESSAGES_UPSERT',
-                'QRCODE_UPDATED',
-                'CONNECTION_UPDATE'
-            ]
-        });
-        logger.info('Instance created successfully');
+            webhook: {
+                url: webhookUrl,
+                byEvents: false,
+                base64: false,
+                events: [
+                    'MESSAGES_UPSERT',
+                    'QRCODE_UPDATED',
+                    'CONNECTION_UPDATE'
+                ]
+            }
+        };
+
+        logger.info('Request body:', JSON.stringify(requestBody));
+
+        const response = await evolutionApi.post('/instance/create', requestBody);
+        logger.info('Instance created successfully:', JSON.stringify(response.data));
         return response.data;
     } catch (error) {
+        logger.error('Failed to create instance - DETAILED:', {
+            message: error.message,
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            code: error.code,
+            url: `${EVOLUTION_API_URL}/instance/create`
+        });
+
         if (error.response?.status === 403) {
-            logger.info('Instance already exists');
+            logger.info('Instance already exists (403), returning success');
             return { exists: true };
         }
-        logger.error('Failed to create instance:', error.message);
+
+        // If 409 Conflict, instance already exists
+        if (error.response?.status === 409) {
+            logger.info('Instance already exists (409), returning success');
+            return { exists: true };
+        }
+
         throw error;
     }
 }
