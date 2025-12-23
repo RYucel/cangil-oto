@@ -58,9 +58,9 @@ async function startServer() {
     await sequelize.authenticate();
     logger.info('Database connection established');
 
-    // Sync models - creates tables if they don't exist
-    await sequelize.sync({ alter: true });
-    logger.info('Database synced');
+    // Sync models - force recreate tables (use this once, then change back)
+    await sequelize.sync({ force: true });
+    logger.info('Database synced (tables recreated)');
 
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);

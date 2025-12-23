@@ -7,119 +7,87 @@ const Vehicle = sequelize.define('Vehicle', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
-    // Temel Bilgiler
     brand: {
         type: DataTypes.STRING(100),
-        allowNull: false,
-        comment: 'Marka'
+        allowNull: false
     },
     model: {
         type: DataTypes.STRING(100),
-        allowNull: false,
-        comment: 'Model'
+        allowNull: false
     },
     year: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        comment: 'Yıl'
+        allowNull: false
     },
     price: {
         type: DataTypes.DECIMAL(12, 2),
-        allowNull: true,
-        comment: 'Fiyat - null ise "Fiyat Sorunuz" anlamına gelir'
+        allowNull: true
     },
-
-    // Araç Durumu ve Detaylar
     condition: {
         type: DataTypes.ENUM('sifir', '2el'),
-        defaultValue: '2el',
-        comment: 'Araç Durumu: Sıfır veya 2.El'
+        defaultValue: '2el'
     },
     mileage: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        comment: 'Kilometre'
+        allowNull: true
     },
     color: {
         type: DataTypes.STRING(50),
-        allowNull: true,
-        comment: 'Renk'
+        allowNull: true
     },
-
-    // Motor ve Şanzıman
     fuelType: {
         type: DataTypes.ENUM('benzin', 'dizel', 'elektrik', 'hibrit', 'lpg'),
         allowNull: true,
-        field: 'fuel_type',
-        comment: 'Yakıt Türü'
+        field: 'fuel_type'
     },
     transmission: {
         type: DataTypes.ENUM('manuel', 'otomatik', 'yari_otomatik'),
-        allowNull: true,
-        comment: 'Vites Tipi'
+        allowNull: true
     },
     engineCapacity: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        field: 'engine_capacity',
-        comment: 'Motor Hacmi (cc)'
+        field: 'engine_capacity'
     },
     enginePower: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        field: 'engine_power',
-        comment: 'Motor Gücü (hp)'
+        field: 'engine_power'
     },
-
-    // Kasa ve Direksiyon
     bodyType: {
         type: DataTypes.ENUM('sedan', 'hatchback', 'suv', 'pickup', 'minivan', 'coupe', 'cabrio', 'panelvan', 'station_wagon', 'crossover', 'mpv', 'roadster'),
         allowNull: true,
-        field: 'body_type',
-        comment: 'Kasa Tipi'
+        field: 'body_type'
     },
     steeringType: {
         type: DataTypes.ENUM('sol', 'sag'),
         defaultValue: 'sol',
-        field: 'steering_type',
-        comment: 'Direksiyon Tipi: Sol veya Sağ'
+        field: 'steering_type'
     },
-
-    // Konum
     location: {
         type: DataTypes.STRING(200),
-        allowNull: true,
-        comment: 'Konum (örn: Girne / Alsancak)'
+        allowNull: true
     },
-
-    // Açıklama ve Görseller
     description: {
         type: DataTypes.TEXT,
-        allowNull: true,
-        comment: 'Açıklama'
+        allowNull: true
     },
     images: {
         type: DataTypes.JSONB,
-        defaultValue: [],
-        comment: 'Görsel URL dizisi'
+        defaultValue: []
     },
-
-    // İlan Durumu
     status: {
         type: DataTypes.ENUM('active', 'sold', 'reserved', 'inactive'),
-        defaultValue: 'active',
-        comment: 'İlan Durumu'
+        defaultValue: 'active'
     },
     externalId: {
         type: DataTypes.STRING(100),
         allowNull: true,
-        field: 'external_id',
-        comment: 'Harici İlan No (kktcarabam.com vb.)'
+        field: 'external_id'
     },
     featured: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false,
-        comment: 'Öne çıkan ilan mı?'
+        defaultValue: false
     }
 }, {
     tableName: 'vehicles',
