@@ -119,13 +119,62 @@ async function getConnectionStatus() {
 
 /**
  * Get QR code for connection
+ * Evolution API v2 uses /instance/connect/{instance} endpoint
+ * which returns QR code data
  */
 async function getQRCode() {
     try {
         logger.info(`Getting QR code for instance: ${INSTANCE_NAME}`);
-        const response = await evolutionApi.get(`/instance/connect/${INSTANCE_NAME}`);
-        logger.info('QR code response received');
-        return response.data;
+
+        // Try fetchInstances first to get QR code from instance data
+        const instanceRes = await evolutionApi.get(`/instance/fetchInstances`, {
+            params: { instanceName: INSTANCE_NAME }
+        });
+
+        logger.info('Instance data received:', JSON.stringify(instanceRes.data));
+
+        // Check for QR code in instance data
+        if (instanceRes.data && Array.isArray(instanceRes.data)) {
+            const instance = instanceRes.data.find(i => i.name === INSTANCE_NAME || i.instance?.instanceName === INSTANCE_NAME);
+            if (instance) {
+                // Look for QR in various possible locations
+                const qr = instance.qrcode || instance.qr || instance.instance?.qrcode;
+                if (qr) {
+                    logger.info('Found QR code in instance data');
+                    // Handle both base64 with prefix and without
+                    const base64 = qr.base64 || qr;
+                    const cleanBase64 = base64.replace(/^data:image\/[a-z]+;base64,/, '');
+                    return { base64: cleanBase64 };
+                }
+            }
+        }
+
+        // If no QR in instance data, try connect endpoint
+        logger.info('Trying connect endpoint...');
+        const connectRes = await evolutionApi.get(`/instance/connect/${INSTANCE_NAME}`);
+        logger.info('Connect response:', JSON.stringify(connectRes.data));
+
+        // Extract QR code from various possible response formats
+        let qrBase64 = null;
+        if (connectRes.data.qrcode) {
+            qrBase64 = connectRes.data.qrcode.base64 || connectRes.data.qrcode;
+        } else if (connectRes.data.base64) {
+            qrBase64 = connectRes.data.base64;
+        } else if (connectRes.data.code) {
+            // Some versions return the raw QR string
+            qrBase64 = connectRes.data.code;
+        } else if (typeof connectRes.data === 'string') {
+            qrBase64 = connectRes.data;
+        }
+
+        if (qrBase64) {
+            // Clean base64 prefix if present
+            const cleanBase64 = qrBase64.replace(/^data:image\/[a-z]+;base64,/, '');
+            return { base64: cleanBase64 };
+        }
+
+        logger.warn('No QR code found in response');
+        return { count: 0 };
     } catch (error) {
         logger.error('Failed to get QR code:', {
             message: error.message,
