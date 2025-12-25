@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Evolution API - WhatsApp Connection
   evolution-api:
-    image: atendai/evolution-api:latest
+    image: atendai/evolution-api:v2.3.2
     container_name: cangil-evolution
     restart: unless-stopped
     ports:
@@ -29,7 +29,8 @@ services:
       - WEBHOOK_GLOBAL_ENABLED=false
       - CONFIG_SESSION_PHONE_CLIENT=Cangil_Oto
       - CONFIG_SESSION_PHONE_NAME=Chrome
-      - LOG_LEVEL=ERROR
+      - LOG_LEVEL=info
+      - CONFIG_SESSION_PHONE_VERSION=2.3000.1012310623
     volumes:
       - evolution_instances:/evolution/instances
     networks:
