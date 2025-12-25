@@ -105,34 +105,68 @@ function clearCachedQRCode() {
  */
 async function handleMessageEvent(data) {
     try {
-        // Handle array or single message
-        const messages = Array.isArray(data) ? data : [data];
+        logger.info('=== MESSAGE EVENT RECEIVED ===');
+        logger.info('Raw data type:', typeof data);
+        logger.info('Raw data:', JSON.stringify(data, null, 2).substring(0, 1000));
+
+        // Evolution API v2 can send data in different formats
+        let messages = [];
+
+        if (Array.isArray(data)) {
+            messages = data;
+        } else if (data.data && Array.isArray(data.data)) {
+            messages = data.data;
+        } else if (data.message || data.key) {
+            messages = [data];
+        } else {
+            logger.warn('Unknown message format, trying to extract...');
+            messages = [data];
+        }
+
+        logger.info(`Processing ${messages.length} message(s)`);
 
         for (const messageData of messages) {
-            // Skip if not a regular message or is from us
-            const message = messageData.message || messageData;
+            logger.info('Message data keys:', Object.keys(messageData || {}));
 
-            if (!message || message.fromMe) {
+            // Extract key and message from various possible locations
+            const key = messageData.key || messageData.data?.key || {};
+            const message = messageData.message || messageData.data?.message || messageData;
+
+            logger.info('Key:', JSON.stringify(key));
+            logger.info('FromMe:', key.fromMe);
+
+            // Skip if from us
+            if (key.fromMe === true) {
+                logger.info('Skipping outgoing message');
                 continue;
             }
 
-            // Get phone number (remove @s.whatsapp.net)
-            const remoteJid = message.key?.remoteJid || messageData.remoteJid;
-            if (!remoteJid) continue;
+            // Get phone number
+            const remoteJid = key.remoteJid || messageData.remoteJid || messageData.data?.remoteJid;
+            if (!remoteJid) {
+                logger.warn('No remoteJid found in message');
+                continue;
+            }
 
-            const phone = remoteJid.replace('@s.whatsapp.net', '').replace('@g.us', '');
+            logger.info('RemoteJid:', remoteJid);
 
             // Skip group messages
             if (remoteJid.includes('@g.us')) {
-                logger.info(`Skipping group message from ${phone}`);
+                logger.info(`Skipping group message`);
                 continue;
             }
 
-            // Extract message text
-            let text = '';
-            const msgContent = message.message || {};
+            const phone = remoteJid.replace('@s.whatsapp.net', '');
 
-            if (msgContent.conversation) {
+            // Extract message text from various possible locations
+            let text = '';
+            const msgContent = message.message || message;
+
+            logger.info('Message content keys:', Object.keys(msgContent || {}));
+
+            if (typeof msgContent === 'string') {
+                text = msgContent;
+            } else if (msgContent.conversation) {
                 text = msgContent.conversation;
             } else if (msgContent.extendedTextMessage?.text) {
                 text = msgContent.extendedTextMessage.text;
@@ -140,20 +174,27 @@ async function handleMessageEvent(data) {
                 text = msgContent.buttonsResponseMessage.selectedDisplayText;
             } else if (msgContent.listResponseMessage?.title) {
                 text = msgContent.listResponseMessage.title;
+            } else if (msgContent.text) {
+                text = msgContent.text;
             }
 
             if (!text) {
-                logger.info(`No text content in message from ${phone}`);
+                logger.info(`No text content found in message from ${phone}`);
+                logger.info('Full message content:', JSON.stringify(msgContent).substring(0, 500));
                 continue;
             }
 
-            logger.info(`Processing message from ${phone}: ${text.substring(0, 50)}...`);
+            logger.info(`=== PROCESSING MESSAGE ===`);
+            logger.info(`Phone: ${phone}`);
+            logger.info(`Text: ${text}`);
 
             // Process with chatbot
             await chatbotService.handleMessage(phone, text);
+            logger.info('Message processed successfully');
         }
     } catch (error) {
         logger.error('Error processing message event:', error);
+        logger.error('Error stack:', error.stack);
     }
 }
 
