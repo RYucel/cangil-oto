@@ -23,27 +23,41 @@ const evolutionApi = axios.create({
  */
 async function sendMessage(to, text) {
     try {
-        // If 'to' is already in JID format (@lid or @s.whatsapp.net), use it directly
-        // Otherwise, assume it's a phone number
-        let number = to;
+        // For LID format, we need to keep the full JID and use 'remoteJid' parameter
+        // For regular phone numbers, just use 'number'
+        const isLid = to.includes('@lid');
+        const isJid = to.includes('@s.whatsapp.net');
 
-        // If it's a LID or already has @, keep as-is for the number field
-        // Evolution API should handle the full JID
-        if (to.includes('@lid')) {
-            // For LID format, we need to extract just the number part
-            // and let Evolution API format it
-            number = to.replace('@lid', '');
-        } else if (to.includes('@s.whatsapp.net')) {
-            number = to.replace('@s.whatsapp.net', '');
+        let requestBody;
+
+        if (isLid) {
+            // For LID format, use the full JID as remoteJid
+            logger.info(`Sending message to LID: ${to}`);
+            requestBody = {
+                number: to, // Keep full LID format
+                text: text
+            };
+        } else if (isJid) {
+            // Strip the JID suffix for regular WhatsApp numbers
+            const number = to.replace('@s.whatsapp.net', '');
+            logger.info(`Sending message to number: ${number}`);
+            requestBody = {
+                number: number,
+                text: text
+            };
+        } else {
+            // Plain phone number
+            logger.info(`Sending message to: ${to}`);
+            requestBody = {
+                number: to,
+                text: text
+            };
         }
 
-        logger.info(`Sending message to: ${number} (original: ${to})`);
+        logger.info(`Request body: ${JSON.stringify(requestBody)}`);
 
-        const response = await evolutionApi.post(`/message/sendText/${INSTANCE_NAME}`, {
-            number: number,
-            text: text
-        });
-        logger.info(`Message sent to ${number}`);
+        const response = await evolutionApi.post(`/message/sendText/${INSTANCE_NAME}`, requestBody);
+        logger.info(`Message sent to ${to}`);
         return response.data;
     } catch (error) {
         logger.error(`Failed to send message to ${to}:`, error.message);
