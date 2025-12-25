@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Evolution API - WhatsApp Connection
   evolution-api:
-    image: atendai/evolution-api:v2.3.2
+    image: atendai/evolution-api:v2.1.1
     container_name: cangil-evolution
     restart: unless-stopped
     ports:
