@@ -185,11 +185,12 @@ async function handleMessageEvent(data) {
             }
 
             logger.info(`=== PROCESSING MESSAGE ===`);
-            logger.info(`Phone: ${phone}`);
+            logger.info(`Phone: ${remoteJid}`);
             logger.info(`Text: ${text}`);
+            logger.info(`Message Key: ${JSON.stringify(key)}`);
 
-            // Process with chatbot
-            await chatbotService.handleMessage(phone, text);
+            // Process with chatbot - pass the full key for quoted replies
+            await chatbotService.handleMessage(remoteJid, text, key);
             logger.info('Message processed successfully');
         }
     } catch (error) {

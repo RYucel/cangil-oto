@@ -19,26 +19,39 @@ const evolutionApi = axios.create({
 
 /**
  * Send a text message via WhatsApp
- * Supports both LID format (xxxxx@lid) and standard phone numbers
+ * Uses quoted reply for LID format to bypass the limitation
  */
 async function sendMessage(to, text) {
     try {
-        // For LID format, we need to keep the full JID and use 'remoteJid' parameter
-        // For regular phone numbers, just use 'number'
+        // Check if we have a stored message key for quoted reply
+        const messageKey = global.lastMessageKey?.[to];
+
+        // For LID format, we MUST use quoted reply
         const isLid = to.includes('@lid');
-        const isJid = to.includes('@s.whatsapp.net');
 
         let requestBody;
 
-        if (isLid) {
-            // For LID format, use the full JID as remoteJid
-            logger.info(`Sending message to LID: ${to}`);
+        if (isLid && messageKey) {
+            // Use quoted reply for LID - this bypasses the number validation
+            logger.info(`Sending QUOTED reply to LID: ${to}`);
+            logger.info(`Using message key: ${JSON.stringify(messageKey)}`);
+
             requestBody = {
-                number: to, // Keep full LID format
+                number: to,
+                text: text,
+                quoted: {
+                    key: messageKey
+                }
+            };
+        } else if (isLid) {
+            // LID without message key - try direct send (may fail)
+            logger.warn(`LID format without message key, trying direct send: ${to}`);
+            requestBody = {
+                number: to,
                 text: text
             };
-        } else if (isJid) {
-            // Strip the JID suffix for regular WhatsApp numbers
+        } else if (to.includes('@s.whatsapp.net')) {
+            // Regular JID - strip suffix
             const number = to.replace('@s.whatsapp.net', '');
             logger.info(`Sending message to number: ${number}`);
             requestBody = {

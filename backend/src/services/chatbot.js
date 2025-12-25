@@ -30,10 +30,20 @@ const BUSINESS_INFO = {
 
 /**
  * Main message handler
+ * @param {string} phone - The phone number or remoteJid
+ * @param {string} message - The message text
+ * @param {object} messageKey - The message key for quoted replies (id, remoteJid, fromMe)
  */
-async function handleMessage(phone, message) {
+async function handleMessage(phone, message, messageKey = null) {
     try {
-        // Get or create customer
+        // Store the message key globally for this conversation
+        // This allows us to use quoted replies
+        if (messageKey) {
+            global.lastMessageKey = global.lastMessageKey || {};
+            global.lastMessageKey[phone] = messageKey;
+        }
+
+        // Get or create customer - use remoteJid as phone identifier
         let customer = await Customer.findOne({ where: { phone } });
 
         if (!customer) {
