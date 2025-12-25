@@ -26,7 +26,13 @@ services:
       - CACHE_REDIS_PREFIX_KEY=evolution
       - CACHE_LOCAL_ENABLED=false
       - QRCODE_LIMIT=30
-      - WEBHOOK_GLOBAL_ENABLED=false
+      - WEBHOOK_GLOBAL_ENABLED=true
+      - WEBHOOK_GLOBAL_URL=https://ug0sks4kggscsgw8o8ckog84.rustuyucel.cloud/api/webhook
+      - WEBHOOK_GLOBAL_WEBHOOK_BY_EVENTS=false
+      - WEBHOOK_EVENTS_APPLICATION_STARTUP=false
+      - WEBHOOK_EVENTS_QRCODE_UPDATED=true
+      - WEBHOOK_EVENTS_MESSAGES_UPSERT=true
+      - WEBHOOK_EVENTS_CONNECTION_UPDATE=true
       - CONFIG_SESSION_PHONE_CLIENT=Cangil_Oto
       - CONFIG_SESSION_PHONE_NAME=Chrome
       - LOG_LEVEL=info
