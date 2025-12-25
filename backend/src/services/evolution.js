@@ -19,17 +19,37 @@ const evolutionApi = axios.create({
 
 /**
  * Send a text message via WhatsApp
+ * Supports both LID format (xxxxx@lid) and standard phone numbers
  */
 async function sendMessage(to, text) {
     try {
+        // If 'to' is already in JID format (@lid or @s.whatsapp.net), use it directly
+        // Otherwise, assume it's a phone number
+        let number = to;
+
+        // If it's a LID or already has @, keep as-is for the number field
+        // Evolution API should handle the full JID
+        if (to.includes('@lid')) {
+            // For LID format, we need to extract just the number part
+            // and let Evolution API format it
+            number = to.replace('@lid', '');
+        } else if (to.includes('@s.whatsapp.net')) {
+            number = to.replace('@s.whatsapp.net', '');
+        }
+
+        logger.info(`Sending message to: ${number} (original: ${to})`);
+
         const response = await evolutionApi.post(`/message/sendText/${INSTANCE_NAME}`, {
-            number: to,
+            number: number,
             text: text
         });
-        logger.info(`Message sent to ${to}`);
+        logger.info(`Message sent to ${number}`);
         return response.data;
     } catch (error) {
         logger.error(`Failed to send message to ${to}:`, error.message);
+        if (error.response?.data) {
+            logger.error('Error response data:', JSON.stringify(error.response.data));
+        }
         throw error;
     }
 }
