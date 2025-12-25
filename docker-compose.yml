@@ -30,7 +30,8 @@ services:
       - CONFIG_SESSION_PHONE_CLIENT=Cangil_Oto
       - CONFIG_SESSION_PHONE_NAME=Chrome
       - LOG_LEVEL=info
-      - CONFIG_SESSION_PHONE_VERSION=2.3000.1012310623
+      - CONFIG_SESSION_PHONE_VERSION=2.3000.1031466336.258709
+      - WEB_VERSION=2.3000.1031466336.258709
     volumes:
       - evolution_instances:/evolution/instances
     networks:
